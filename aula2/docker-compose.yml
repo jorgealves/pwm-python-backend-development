@@ -1,0 +1,9 @@
+version: "latest"
+services:
+  aula2:
+    build:
+      context: .
+      dockerfile: docker/dockerfile
+    command: bash
+    volumes:
+      - .:/workspace:rw

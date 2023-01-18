@@ -1,0 +1,8 @@
+version: 'latest'
+services:
+  fibonacci:
+    build: 
+      context: .
+      dockerfile: dockerfile
+    volumes:
+      - .:/workspace:rw

@@ -1,0 +1,8 @@
+version: 'latest'
+services:
+  aula4:
+    build: 
+      context: .
+      dockerfile: dockerfile
+    volumes:
+      - .:/workspace:rw

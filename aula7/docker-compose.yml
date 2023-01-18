@@ -1,0 +1,11 @@
+version: 'latest'
+services:
+  api:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    command: uvicorn src.run:api --reload --host 0.0.0.0 --workers 2
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/workspace:rw
