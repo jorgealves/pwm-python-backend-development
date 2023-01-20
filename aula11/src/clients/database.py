@@ -1,46 +1,44 @@
 from src.models.database import UserDatabaseModel
 from src.models.api import UserAPIModel, MenuItemAPIModel
-from src.models.database import MenuItemDatabaseModel
+from src.models.database import MenuItemDatabaseModel, engine
 from dataclasses import asdict
-
-users_table = dict()
-menu_item_table = dict()
+from sqlalchemy.orm import Session
+from sqlalchemy import select, delete
 
 
 def create_new_user(user_api_model: UserAPIModel):
-    if user_api_model.username in users_table.keys():
-        raise Exception("Username already taken")
-    users_table[user_api_model.username] = user_api_model.password
+    with Session(engine) as session:
+        new_user = UserDatabaseModel(**user_api_model.dict())
+        session.add(new_user)
+        session.commit()
 
 
 def get_username(username: str) -> UserDatabaseModel:
-    database_password = users_table.get(username)
-    if not database_password:
+    with Session(engine) as session:
+        query = select(UserDatabaseModel).where(
+            UserDatabaseModel.username == username)
+        result = session.scalars(query).one()
+    if not result:
         raise Exception("username does not exist")
-    return UserDatabaseModel(username=username, password=database_password)
+    return result
 
 
 def create_new_menu_item(menu_item_api_model: MenuItemAPIModel):
-    if menu_item_api_model.name in menu_item_table.keys():
-        raise Exception("Menu Item already exists")
-    menu_item_table[menu_item_api_model.name] = MenuItemDatabaseModel(
-        **menu_item_api_model.dict()
-    )  # MenuItemDatabaseModel(name=menu_item_api_model.name, price=menu_item_api_model.price, description=menu_item_api_model.description)
+    with Session(engine) as db:
+        new_item = MenuItemDatabaseModel(**menu_item_api_model.dict())
+        db.add(new_item)
+        db.commit()
 
 
 def get_all_menu_items():
-    data = list(menu_item_table.values())
-    return [
-        MenuItemAPIModel(**asdict(x))
-        for x in data
-    ]
-    # result = []
-    # for x in data:
-    #     result.append(MenuItemAPIModel(**x.dict()))
+    with Session(engine) as db:
+        query = select(MenuItemDatabaseModel)
+        result = db.scalars(query).all()
+    return list(result)
 
 
 def delete_menu_item(menu_item_name: str):
-    if menu_item_name not in menu_item_table.keys():
-        raise Exception("Menu Item name does not exist")
-    menu_item_table.pop(menu_item_name)
-    # del menu_item_table[menu_item_name]
+    with Session(engine) as db:
+        statement = delete(MenuItemDatabaseModel).where(
+            MenuItemDatabaseModel.name == menu_item_name)
+        db.execute(statement)

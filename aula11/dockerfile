@@ -1,5 +1,7 @@
 FROM python:3.11
 
+RUN apt install -y libmariadb-dev-compat libmariadb-dev
+
 RUN pip install poetry
 
 RUN poetry config virtualenvs.create false
