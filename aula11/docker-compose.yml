@@ -1,0 +1,23 @@
+version: '3'
+services:
+  api:
+    build:
+      context: . 
+      dockerfile: dockerfile
+    command: uvicorn src.main:api --reload --host 0.0.0.0
+    ports:
+      - 8000:8000
+    volumes:
+      - .:/workspace:rw
+
+  db:
+    image: mysql
+    # NOTE: use of "mysql_native_password" is not recommended: https://dev.mysql.com/doc/refman/8.0/en/upgrading-from-previous-series.html#upgrade-caching-sha2-password
+    # (this is just an example, not intended to be a production configuration)
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_DATABASE: el_chapo_food_db
+      MYSQL_ROOT_PASSWORD: admin
+
+  adminer:
+    image: adminer
